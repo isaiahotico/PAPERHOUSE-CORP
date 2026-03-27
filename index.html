@@ -3,185 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PaperHouse Corp - Ad Rewards</title>
+    <title>PaperHouse Corp - Earning App</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase Legacy SDKs for easier integration -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
-        .success-bg { background: linear-gradient(90deg, #00b09b 0%, #96c93d 100%); }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); }
+        #adTaskCard { display: none; }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="p-4 md:p-8 text-gray-800">
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
-    <!-- Sound Element -->
-    <audio id="ring-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
-
-    <!-- Login/Signup Modal (Initially visible) -->
-    <div id="auth-modal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl text-center">
-            <h2 class="text-3xl font-black text-indigo-700 mb-4">PaperHouse Corp</h2>
-            <p class="text-gray-600 mb-6">Login or create an account to start earning.</p>
-
-            <input id="auth-email" type="email" placeholder="Email Address" class="w-full p-4 border border-gray-300 rounded-xl mb-3 outline-none focus:ring-2 focus:ring-indigo-400">
-            <input id="auth-password" type="password" placeholder="Password" class="w-full p-4 border border-gray-300 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-indigo-400">
-            
-            <button onclick="handleAuth(true)" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold hover:bg-indigo-700 transition-colors mb-3">
-                LOGIN
-            </button>
-            <button onclick="handleAuth(false)" class="w-full bg-gray-200 text-gray-800 p-4 rounded-xl font-bold hover:bg-gray-300 transition-colors">
-                SIGN UP
-            </button>
-            <p id="auth-error" class="text-red-500 text-sm mt-4 hidden"></p>
+    <!-- Header -->
+    <header class="bg-blue-700 text-white p-4 shadow-md sticky top-0 z-40">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="font-black text-xl tracking-tighter">PAPERHOUSE <span class="text-yellow-400">CORP</span></h1>
+            <div id="balanceHeader" class="text-sm font-bold bg-blue-800 px-3 py-1 rounded-full">₱0.00</div>
         </div>
-    </div>
+    </header>
 
-    <!-- Main Content (Initially hidden) -->
-    <div id="main-content" class="max-w-md mx-auto space-y-6 hidden">
-        <!-- Header / Balance Card -->
-        <div class="glass p-6 rounded-3xl shadow-2xl text-center border-b-4 border-indigo-500">
-
-            <div class="flex justify-between items-center mb-2">
-                <h1 class="text-lg font-bold text-gray-600 uppercase tracking-tighter">My Earnings</h1>
-                <button onclick="handleLogout()" class="text-sm text-gray-500 hover:text-red-500 transition-colors"><i class="fas fa-sign-out-alt mr-1"></i> Logout</button>
-            </div>
-            <div class="mt-2">
-                <h2 class="text-5xl font-black text-indigo-700">₱ <span id="user-balance">0.00</span></h2>
-            </div>
-        </div>
-
-        <!-- Main Task Card -->
-        <div id="ad-card" class="glass p-8 rounded-3xl shadow-xl text-center relative overflow-hidden">
-            <!-- Ready State -->
-            <div id="ready-state">
-                <div class="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-ads text-3xl text-indigo-600"></i>
-                </div>
-                <h3 class="text-xl font-bold">Watch & Earn</h3>
-                <p class="text-sm text-gray-500 mb-6">Earn ₱0.01 by staying 20s on the ad.</p>
-                <button onclick="startTask()" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-indigo-700 transition-all w-full shadow-lg text-lg">
-                    OPEN AD LINK
+    <main class="flex-grow container mx-auto p-4 max-w-md">
+        
+        <!-- Dashboard View -->
+        <div id="view-dashboard">
+            <div class="bg-white rounded-3xl p-8 shadow-xl text-center mb-6 border border-slate-100">
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Available Balance</p>
+                <h2 id="mainBalance" class="text-5xl font-black text-blue-700 mb-6">₱0.000</h2>
+                <button onclick="handleAdClick()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transform active:scale-95 transition-all">
+                    WATCH AD (₱0.01)
                 </button>
             </div>
 
-            <!-- Timer State -->
-            <div id="timer-state" class="hidden py-4">
-                <div class="text-4xl font-black text-indigo-600 mb-2" id="timer-text">20s</div>
-                <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
-                    <div id="timer-bar" class="bg-indigo-600 h-4 rounded-full transition-all duration-1000" style="width: 100%"></div>
-                </div>
-                <p class="text-red-500 font-bold animate-pulse text-sm">TASK ACTIVE: DO NOT CLOSE AD!</p>
-            </div>
-        </div>
-
-        <!-- Referral Section -->
-        <div class="glass p-6 rounded-3xl shadow-xl">
-            <h3 class="font-bold border-b pb-2 mb-3 flex justify-between items-center">
-                <span>Referral (20% Bonus)</span>
-                <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded">Active</span>
-            </h3>
-            <div class="grid grid-cols-2 gap-4 mb-4 text-center">
-                <div class="bg-gray-50 p-2 rounded-xl">
-                    <p class="text-[10px] uppercase text-gray-400">Total Refs</p>
-                    <p id="ref-count" class="font-bold text-lg">0</p>
-                </div>
-                <div class="bg-gray-50 p-2 rounded-xl">
-                    <p class="text-[10px] uppercase text-gray-400">Ref Earned</p>
-                    <p class="font-bold text-lg text-green-600">₱<span id="ref-earn">0.00</span></p>
+            <!-- Stats -->
+            <div class="grid grid-cols-2 gap-4 mb-6 text-center">
+                <div class="bg-white p-4 rounded-2xl shadow-sm">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Referrals</p>
+                    <p id="statRefs" class="text-xl font-bold">0</p>
+                </div>                <div class="bg-white p-4 rounded-2xl shadow-sm">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Ref. Earnings</p>
+                    <p id="statRefEarnings" class="text-xl font-bold text-green-500">₱0.00</p>
                 </div>
             </div>
-            <div class="flex items-center bg-gray-100 p-3 rounded-xl">
-                <input id="ref-link" type="text" readonly class="bg-transparent text-xs w-full outline-none font-mono">
-                <button onclick="copyRef()" class="bg-indigo-600 text-white text-xs px-3 py-1 rounded-lg font-bold ml-2">COPY</button>
+
+            <!-- Referral Link -->
+            <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100 mb-6">
+                <label class="text-xs font-bold text-blue-700 block mb-2">Share & Earn 20% Commission</label>
+                <div class="flex gap-2">
+                    <input type="text" id="refUrl" readonly class="flex-1 bg-white border-none text-xs p-2 rounded-lg">
+                    <button onclick="copyRef()" class="bg-blue-700 text-white px-4 rounded-lg text-xs font-bold">COPY</button>
+                </div>
+            </div>
+
+            <!-- Menu Grid -->
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="switchTab('withdraw')" class="p-3 bg-white rounded-xl shadow-sm text-xs font-bold"><i class="fa fa-wallet block mb-1 text-blue-600"></i> Withdraw</button>
+                <button onclick="switchTab('history')" class="p-3 bg-white rounded-xl shadow-sm text-xs font-bold"><i class="fa fa-history block mb-1 text-blue-600"></i> History</button>
+                <button onclick="promptAdmin()" class="p-3 bg-white rounded-xl shadow-sm text-xs font-bold"><i class="fa fa-lock block mb-1 text-slate-400"></i> Admin</button>
             </div>
         </div>
 
-        <!-- Withdrawal Section -->
-        <div class="glass p-6 rounded-3xl shadow-xl">
-            <h3 class="font-bold mb-4 italic">Withdrawal Request</h3>
-            <input id="withdraw-method" type="text" placeholder="Gcash / PayMaya Number" class="w-full p-3 rounded-xl border mb-3 outline-none focus:ring-2 focus:ring-indigo-400">
-            <input id="withdraw-amount" type="number" placeholder="Amount (Minimum 1.00)" class="w-full p-3 rounded-xl
-
-border mb-4 outline-none focus:ring-2 focus:ring-indigo-400">
-            <button onclick="requestWithdrawal()" class="w-full bg-gray-800 text-white p-4 rounded-xl font-bold shadow-md hover:bg-black transition-colors">SUBMIT WITHDRAWAL</button>
-        </div>
-
-        <!-- History -->
-        <div class="glass p-6 rounded-3xl shadow-xl">
-            <h3 class="font-bold mb-3 text-sm text-gray-500 uppercase">Payment History</h3>
-            <div id="history-list" class="space-y-3 max-h-48 overflow-y-auto pr-2">
-                <p class="text-gray-400 text-center text-xs">No transactions found.</p>
+        <!-- Withdraw View -->
+        <div id="view-withdraw" class="hidden animate-fade-in">
+            <button onclick="switchTab('dashboard')" class="mb-4 text-blue-600 font-bold text-sm">← Back</button>
+            <div class="bg-white p-6 rounded-3xl shadow-lg">
+                <h3 class="text-xl font-bold mb-4">Request Payout</h3>
+                <input type="text" id="drawNumber" placeholder="GCash Number or Email" class="w-full p-3 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500">
+                <input type="number" id="drawAmount" placeholder="Amount (₱)" class="w-full p-3 border rounded-xl mb-6 focus:ring-2 focus:ring-blue-500">                <button onclick="submitWithdrawal()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold">Submit Request</button>
             </div>
         </div>
 
-        <button onclick="openAdmin()" class="w-full text-center text-gray-500 text-xs hover:underline mt-4">Admin Dashboard</button>
+        <!-- History View -->
+        <div id="view-history" class="hidden">
+            <button onclick="switchTab('dashboard')" class="mb-4 text-blue-600 font-bold text-sm">← Back</button>
+            <div class="bg-white p-6 rounded-3xl shadow-lg">
+                <h3 class="text-xl font-bold mb-4">My Withdrawals</h3>
+                <div id="historyContainer" class="space-y-3">
+                    <p class="text-slate-400 text-sm text-center">No transactions yet.</p>
+                </div>
+            </div>
+        </div>
 
-        <footer class="text-center text-gray-400 text-[10px] py-6">
-            <p id="current-time" class="font-bold text-gray-300 mb-1"></p>
-            <p>PAPERHOUSE CORP &copy; 2024. All rights reserved.</p>
-        </footer>
+        <!-- Admin View -->
+        <div id="view-admin" class="hidden">
+            <button onclick="switchTab('dashboard')" class="mb-4 text-slate-600 font-bold text-sm">← Exit Admin</button>
+            <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-red-100">
+                <h3 class="text-xl font-bold mb-4 italic">Pending Approvals</h3>
+                <div id="adminContainer" class="space-y-4"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Ad Task Overlay (The Card) -->
+    <div id="adTaskOverlay" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-8 text-center shadow-2xl">
+            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span id="timerText" class="text-3xl font-black text-blue-700">20</span>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Ad in Progress...</h3>
+            <p class="text-slate-500 text-sm mb-6">Please stay on the opened tab for 20 seconds. <strong>Do not close it!</strong></p>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div id="timerBar" class="bg-blue-600 h-full transition-all duration-1000" style="width: 100%"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- Admin Modal -->
-    <div id="admin-modal" class="fixed inset-0 bg-black/90 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black">ADMIN PANEL</h2>
-                <button onclick="closeAdmin()" class="text-3xl">&times;</button>
-            </div>
-            <div id="admin-auth">
-                <input id="admin-pass" type="password" placeholder="Enter Admin Key" class="w-full p-4 border rounded-2xl mb-4">
-                <button onclick="checkAdmin()" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold">LOGIN</button>
-            </div>
-            <div id="admin-content" class="hidden">
-                <h3 class="font-bold text-red-500 mb-4 uppercase text-xs">Pending Approvals</h3>
-                <div id="pending-list" class="space-y-4"></div>
-            </div>
-        </div>
-    </div>
+    <!-- Footer -->
+    <footer class="bg-slate-100 p-6 text-center">
+        <p id="footerTime" class="text-xs font-mono text-slate-500 mb-1"></p>
+        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">PaperHouse Corp © 2026</p>
+    </footer>
 
-    <!-- Firebase SDKs (Modular v9+) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getDatabase, ref, onValue, set, update, push, runTransaction, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-        
-        // Your Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBwpa8mA83JAv2A2Dj0rh5VHwodyv5N3dg",
-            authDomain: "freegcash-ads.firebaseapp.com",
-            databaseURL: "https://freegcash-ads-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "freegcash-ads",
-            storageBucket: "freegcash-ads.firebasestorage.app",
-            messagingSenderId: "608086825364",
-            appId: "1:608086825364:web:3a8e628d231b52c6171781",
-            measurementId: "G-Z64B87ELGP"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-
-        // Expose Firebase functions to global scope for use in inline HTML event handlers (not ideal, but works for Blogger)
-        window.auth = auth;
-        window.db = db;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.onAuthStateChanged = onAuthStateChanged;
-        window.signOut = signOut;
-        window.ref = ref;
-        window.onValue = onVa
-
-lue;
-        window.set = set;
-        window.update = update;
-        window.push = push;
-        window.runTransaction = runTransaction;
-        window.query = query;
-        window.orderByChild = orderByChild;
-        window.equalTo = equalTo;
-    </script>
+    <!-- Load Logic -->
     <script src="app.js"></script>
 </body>
 </html>
