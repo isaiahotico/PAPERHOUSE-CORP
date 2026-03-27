@@ -17,10 +17,34 @@
     <!-- Sound Element -->
     <audio id="ring-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
-    <div class="max-w-md mx-auto space-y-6">
-        <!-- Balance Card -->
+    <!-- Login/Signup Modal (Initially visible) -->
+    <div id="auth-modal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl text-center">
+            <h2 class="text-3xl font-black text-indigo-700 mb-4">PaperHouse Corp</h2>
+            <p class="text-gray-600 mb-6">Login or create an account to start earning.</p>
+
+            <input id="auth-email" type="email" placeholder="Email Address" class="w-full p-4 border border-gray-300 rounded-xl mb-3 outline-none focus:ring-2 focus:ring-indigo-400">
+            <input id="auth-password" type="password" placeholder="Password" class="w-full p-4 border border-gray-300 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-indigo-400">
+            
+            <button onclick="handleAuth(true)" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold hover:bg-indigo-700 transition-colors mb-3">
+                LOGIN
+            </button>
+            <button onclick="handleAuth(false)" class="w-full bg-gray-200 text-gray-800 p-4 rounded-xl font-bold hover:bg-gray-300 transition-colors">
+                SIGN UP
+            </button>
+            <p id="auth-error" class="text-red-500 text-sm mt-4 hidden"></p>
+        </div>
+    </div>
+
+    <!-- Main Content (Initially hidden) -->
+    <div id="main-content" class="max-w-md mx-auto space-y-6 hidden">
+        <!-- Header / Balance Card -->
         <div class="glass p-6 rounded-3xl shadow-2xl text-center border-b-4 border-indigo-500">
-            <h1 class="text-lg font-bold text-gray-600 uppercase tracking-tighter">My Earnings</h1>
+
+            <div class="flex justify-between items-center mb-2">
+                <h1 class="text-lg font-bold text-gray-600 uppercase tracking-tighter">My Earnings</h1>
+                <button onclick="handleLogout()" class="text-sm text-gray-500 hover:text-red-500 transition-colors"><i class="fas fa-sign-out-alt mr-1"></i> Logout</button>
+            </div>
             <div class="mt-2">
                 <h2 class="text-5xl font-black text-indigo-700">₱ <span id="user-balance">0.00</span></h2>
             </div>
@@ -43,20 +67,10 @@
             <!-- Timer State -->
             <div id="timer-state" class="hidden py-4">
                 <div class="text-4xl font-black text-indigo-600 mb-2" id="timer-text">20s</div>
-                <div class="w-full bg-gray-200 rounded-full h-4 mb-4">                    <div id="timer-bar" class="bg-indigo-600 h-4 rounded-full transition-all duration-1000" style="width: 100%"></div>
+                <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                    <div id="timer-bar" class="bg-indigo-600 h-4 rounded-full transition-all duration-1000" style="width: 100%"></div>
                 </div>
                 <p class="text-red-500 font-bold animate-pulse text-sm">TASK ACTIVE: DO NOT CLOSE AD!</p>
-            </div>
-
-            <!-- Claim State -->
-            <div id="claim-state" class="hidden py-4 animate-bounce">
-                <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-check-circle text-4xl text-green-600"></i>
-                </div>
-                <h3 class="text-xl font-bold text-green-600 mb-4">Timer Finished!</h3>
-                <button onclick="claimReward()" class="bg-green-500 text-white px-8 py-4 rounded-2xl font-bold hover:bg-green-600 transition-all w-full shadow-lg text-lg">
-                    CLAIM ₱0.01 NOW
-                </button>
             </div>
         </div>
 
@@ -79,13 +93,16 @@
             <div class="flex items-center bg-gray-100 p-3 rounded-xl">
                 <input id="ref-link" type="text" readonly class="bg-transparent text-xs w-full outline-none font-mono">
                 <button onclick="copyRef()" class="bg-indigo-600 text-white text-xs px-3 py-1 rounded-lg font-bold ml-2">COPY</button>
-            </div>        </div>
+            </div>
+        </div>
 
         <!-- Withdrawal Section -->
         <div class="glass p-6 rounded-3xl shadow-xl">
             <h3 class="font-bold mb-4 italic">Withdrawal Request</h3>
             <input id="withdraw-method" type="text" placeholder="Gcash / PayMaya Number" class="w-full p-3 rounded-xl border mb-3 outline-none focus:ring-2 focus:ring-indigo-400">
-            <input id="withdraw-amount" type="number" placeholder="Amount (Minimum 1.00)" class="w-full p-3 rounded-xl border mb-4 outline-none focus:ring-2 focus:ring-indigo-400">
+            <input id="withdraw-amount" type="number" placeholder="Amount (Minimum 1.00)" class="w-full p-3 rounded-xl
+
+border mb-4 outline-none focus:ring-2 focus:ring-indigo-400">
             <button onclick="requestWithdrawal()" class="w-full bg-gray-800 text-white p-4 rounded-xl font-bold shadow-md hover:bg-black transition-colors">SUBMIT WITHDRAWAL</button>
         </div>
 
@@ -123,10 +140,48 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Firebase SDKs (Modular v9+) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getDatabase, ref, onValue, set, update, push, runTransaction, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        
+        // Your Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwpa8mA83JAv2A2Dj0rh5VHwodyv5N3dg",
+            authDomain: "freegcash-ads.firebaseapp.com",
+            databaseURL: "https://freegcash-ads-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "freegcash-ads",
+            storageBucket: "freegcash-ads.firebasestorage.app",
+            messagingSenderId: "608086825364",
+            appId: "1:608086825364:web:3a8e628d231b52c6171781",
+            measurementId: "G-Z64B87ELGP"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // Expose Firebase functions to global scope for use in inline HTML event handlers (not ideal, but works for Blogger)
+        window.auth = auth;
+        window.db = db;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
+        window.ref = ref;
+        window.onValue = onVa
+
+lue;
+        window.set = set;
+        window.update = update;
+        window.push = push;
+        window.runTransaction = runTransaction;
+        window.query = query;
+        window.orderByChild = orderByChild;
+        window.equalTo = equalTo;
+    </script>
     <script src="app.js"></script>
 </body>
 </html>
