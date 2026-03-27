@@ -3,183 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PaperHouse Corp | Best Earning Ads</title>
+    <title>PaperHouse Corp | Premium Earning</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @keyframes pulse-blue { 0%, 100% { box-shadow: 0 0 10px #3b82f6; } 50% { box-shadow: 0 0 25px #3b82f6; } }
-        .glowing-glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: pulse-blue 4s infinite;
-        }
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        body { background: #020617; color: #f8fafc; overflow-x: hidden; }
-        .chat-container { height: 300px; overflow-y: auto; scrollbar-width: thin; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-box { height: 350px; overflow-y: auto; scrollbar-width: none; }
+        .theme-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; }
+        .glowing-glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        body { transition: background 0.5s ease; color: white; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans">
+<body class="bg-slate-950 min-h-screen pb-24">
 
-    <header class="bg-blue-600 p-4 sticky top-0 z-50 shadow-xl border-b border-blue-400">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="font-black italic text-xl">PAPERHOUSE <span class="text-yellow-400 uppercase">Corp</span></h1>
-            <div id="topBal" class="bg-blue-900/80 px-4 py-1 rounded-full text-xs font-bold border border-blue-300">₱0.000</div>
+    <!-- Header -->
+    <header class="p-4 flex justify-between items-center sticky top-0 z-50 bg-inherit border-b border-white/10">
+        <div>
+            <h1 class="font-black italic text-lg leading-none">PAPERHOUSE</h1>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-blue-400">Corporation</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="toggleThemeMenu()" class="text-xl"><i class="fa fa-palette"></i></button>
+            <div id="topBal" class="bg-white/10 px-3 py-1 rounded-full text-xs font-bold border border-white/20">₱0.000</div>
         </div>
     </header>
 
-    <main class="flex-grow container mx-auto p-4 max-w-md">
+    <!-- Theme Picker Menu -->
+    <div id="themeMenu" class="hidden fixed top-16 right-4 z-[60] bg-slate-900 p-4 rounded-2xl border border-white/10 shadow-2xl grid grid-cols-5 gap-2">
+        <!-- 20 Colors generated via JS -->
+    </div>
+
+    <main class="container mx-auto p-4 max-w-md">
         
         <!-- DASHBOARD -->
         <div id="dash-view" class="tab-content active">
-            <div class="bg-gradient-to-b from-blue-600 to-blue-800 rounded-[2rem] p-8 shadow-2xl text-center mb-6 relative overflow-hidden">
-                <p class="text-blue-100 text-xs font-bold uppercase tracking-widest mb-1">Current Balance</p>
-                <h2 id="mainBal" class="text-5xl font-black mb-6">₱0.000</h2>
-                <button onclick="handleAdClick()" class="w-full bg-white text-blue-700 font-black py-4 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-all text-lg uppercase">
-                    WATCH AD & EARN ₱0.01
+            <div class="glowing-glass rounded-[2.5rem] p-8 text-center mb-6 shadow-2xl border-2 border-white/10">                <p class="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-2">Available PHP Balance</p>
+                <h2 id="mainBal" class="text-6xl font-black mb-6 tracking-tighter">₱0.000</h2>
+                <button onclick="startAdTask()" class="w-full bg-white text-slate-950 font-black py-4 rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all uppercase text-sm tracking-widest">
+                    <i class="fa fa-play-circle mr-2"></i> Watch Ad (₱0.01)
                 </button>
             </div>
-
-            <!-- Stats -->
 
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Referrals</p>
-                    <p id="refCount" class="text-xl font-bold">0</p>
+                <div class="bg-white/5 p-4 rounded-2xl border border-white/10 text-center">
+                    <p class="text-[10px] text-white/40 font-bold uppercase mb-1">Total Referrals</p>
+                    <p id="refCount" class="text-2xl font-black">0</p>
                 </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Ref. Earnings</p>
-                    <p id="refEarn" class="text-xl font-bold text-green-400">₱0.000</p>
+                <div class="bg-white/5 p-4 rounded-2xl border border-white/10 text-center">
+                    <p class="text-[10px] text-white/40 font-bold uppercase mb-1">Referral Profits</p>
+                    <p id="refEarn" class="text-2xl font-black text-green-400">₱0.00</p>
                 </div>
             </div>
 
-            <!-- Action Menu -->
-            <div class="grid grid-cols-4 gap-2 mb-6">
-                <button onclick="switchTab('withdraw')" class="p-3 bg-slate-900 rounded-2xl border border-slate-800 text-[9px] font-bold uppercase">
-                    <i class="fa fa-wallet block mb-1 text-blue-500 text-lg"></i> Pay
-                </button>
-                <button onclick="switchTab('history')" class="p-3 bg-slate-900 rounded-2xl border border-slate-800 text-[9px] font-bold uppercase">
-                    <i class="fa fa-history block mb-1 text-blue-500 text-lg"></i> Logs
-                </button>
-                <button onclick="switchTab('chat')" class="p-3 bg-slate-900 rounded-2xl border border-slate-800 text-[9px] font-bold uppercase relative">
-                    <i class="fa fa-comments block mb-1 text-blue-500 text-lg"></i> Chat
-                </button>
-                <button onclick="switchTab('help')" class="p-3 bg-slate-900 rounded-2xl border border-slate-800 text-[9px] font-bold uppercase">
-                    <i class="fa fa-info-circle block mb-1 text-blue-500 text-lg"></i> Help
-                </button>
+            <!-- News/Update Ticker -->
+            <div class="bg-blue-600/20 border border-blue-500/30 p-3 rounded-xl mb-6 flex items-center gap-3">
+                <i class="fa fa-bullhorn text-blue-400 animate-bounce"></i>
+                <marquee class="text-[10px] font-bold uppercase tracking-wider">Welcome to PaperHouse Corp! Minimum withdrawal is ₱0.01. Invite friends to earn 20% forever!</marquee>
             </div>
         </div>
 
         <!-- WITHDRAW VIEW -->
         <div id="withdraw-view" class="tab-content">
-            <button onclick="switchTab('dash')" class="mb-4 text-blue-400 font-bold text-sm">← Back</button>
-            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
-                <h3 class="text-xl font-bold mb-6">Withdraw Funds</h3>
-                <label class="text-[10px] font-bold text-slate-500 mb-1 block">METHOD</label>
-                <select id="wMethod" class="w-full bg-slate-800 border-none p-4 rounded-xl mb-4 text-sm">
-                    <option value="GCash">GCash</option>
-                    <option value="FaucetPay">FaucetPay</option>
-                    <option value="PayPal">PayPal</option>
-                </select>
-                <label class="text-[10px] font-bold text-slate-500 mb-1 block">ACCOUNT DETAILS</label>
-                <input type="text" id="wAccount" placeholder="Number or Email" class="w-full bg-slate-800 border-none p-4 rounded-xl mb-4 text-sm">
-                
-                <label class="text-[10px] font-bold text-slate-500 mb-1 block">AMOUNT (PHP)</label>
-                <input type="number" id="wAmount" oninput="convertCurrency()" placeholder="0.00" class="w-full bg-slate-800 border-none p-4 rounded-xl mb-2 text-sm">
-                <p id="usdtConvert" class="text-xs text-yellow-400 font-bold mb-6 italic">≈ 0.00 USDT</p>
-
-                <button onclick="handleWithdraw()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase tracking-tighter shadow-lg">Submit Request</button>
-                <button onclick="switchTab('wHistory')" class="w-full mt-4 text-blue-500 font-bold text-xs uppercase underline">View My History</button>
-            </div>
-        </div>
-
-        <!-- WITHDRAWAL HISTORY VIEW -->
-        <div id="wHistory-view" class="tab-content">
-            <button onclick="switchTab('withdraw')" class="mb-4 text-blue-400 font-bold text-sm">← Back</button>
-            <div class="bg-slate-900 p-5 rounded-3xl border border-slate-800">
-                <h3 class="font-bold mb-4">Payout History</h3>
-                <div id="wHistoryList" class="space-y-2 text-[11px]">
-                    <p class="text-slate-500 italic">No history yet.</p>
+            <div class="bg-white/5 p-6 rounded-3xl border border-white/10">
+                <h3 class="text-xl font-black mb-6 italic uppercase tracking-tighter">Payout Portal</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-white/40 block mb-1 ml-1">METHOD</label>
+                        <select id="wMethod" class="w-full bg-white/10 border-none p-4 rounded-xl text-sm outline-none">                            <option class="text-black" value="GCash">GCash</option>
+                            <option class="text-black" value="FaucetPay">FaucetPay</option>
+                            <option class="text-black" value="PayPal">PayPal</option>
+                            <option class="text-black" value="Maya">Maya</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-white/40 block mb-1 ml-1">ACCOUNT INFO</label>
+                        <input type="text" id="wAccount" placeholder="Number or Email" class="w-full bg-white/10 border-none p-4 rounded-xl text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-white/40 block mb-1 ml-1">AMOUNT (PHP)</label>
+                        <input type="number" id="wAmount" oninput="updateConvert()" placeholder="0.00" class="w-full bg-white/10 border-none p-4 rounded-xl text-sm outline-none">
+                        <div class="flex justify-between px-1 mt-2">
+                            <span id="usdtVal" class="text-[10px] font-bold text-yellow-500 italic">≈ 0.00 USDT</span>
+                            <span class="text-[10px] text-white/40 italic">Rate: 1 PHP = 0.017 USDT</span>
+                        </div>
+                    </div>
+                    <button onclick="submitWithdraw()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg">Request Payout</button>
+                    <button onclick="switchTab('wHistory')" class="w-full text-[10px] font-bold text-white/40 uppercase tracking-widest">View History</button>
                 </div>
             </div>
         </div>
 
-        <!-- LOGS/EARNINGS VIEW -->
-        <div id="history-view" class="tab-content">
-            <button onclick="switchTab('dash')" class="mb-4 text-blue-400 font-bold text-sm">← Back</button>
-            <div class="bg-slate-900 p-5 rounded-3xl border border-slate-800">
-                <h3 class="font-bold mb-4 italic">Earning Logs</h3>
-                <div id="earningLogs" class="space-y-2 max-h-80 overflow-y-auto pr-2 text-[10px]"></div>
+        <!-- WITHDRAW HISTORY -->
+        <div id="wHistory-view" class="tab-content">
+            <div class="bg-white/5 p-6 rounded-3xl border border-white/10">
+                <h3 class="font-bold mb-4 uppercase text-sm tracking-widest">Withdrawal Status</h3>
+                <div id="wHistoryList" class="space-y-3"></div>
             </div>
         </div>
 
         <!-- CHAT VIEW -->
         <div id="chat-view" class="tab-content">
-            <button onclick="switchTab('dash')" class="mb-4 text-blue-400 font-bold text-sm">← Back</button>
-            <div class="bg-slate-900 p-4 rounded-3xl border border-slate-800 flex flex-col">
-                <h3 class="font-bold mb-2 flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span> Global Chat
-                </h3>
-                <div id="chatBox" class="chat-container mb-4 space-y-3 p-2"></div>
-                <div class="flex gap-2">
-                    <input type="text" id="chatInput" placeholder="Say something..." class="flex-1 bg-slate-800 border-none p-3 rounded-xl text-sm outline-none">
-                    <button onclick="sendMsg()" class="bg-blue-600 px-5 rounded-xl"><i class="fa fa-paper-plane"></i></button>
+            <div class="bg-white/5 rounded-3xl border border-white/10 flex flex-col overflow-hidden">
+                <div class="p-4 border-b border-white/10 bg-white/5 font-bold text-xs uppercase flex justify-between">
+                    <span>Global Chatroom</span>
+                    <span id="onlineCount" class="text-green-500">• Live</span>
+                </div>
+                <div id="chatBox" class="chat-box p-4 space-y-4"></div>
+                <div class="p-4 bg-white/5 flex gap-2">
+                    <input type="text" id="chatInput" placeholder="Write message..." class="flex-1 bg-white/10 border-none p-3 rounded-xl text-xs outline-none">
+                    <button onclick="sendMsg()" class="bg-blue-600 px-4 rounded-xl"><i class="fa fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
 
-        <!-- HELP VIEW -->
-        <div id="help-view" class="tab-content">
-            <button onclick="switchTab('dash')" class="mb-4 text-blue-400 font-bold text-sm">← Back</button>
-            <div class="glowing-glass p-6 rounded-[2rem]">
-                <h3 class="text-xl font-black text-yellow-400 mb-4 italic uppercase">Information</h3>
-                <div class="space-y-3 text-[11px] mb-8">
-                    <div class="flex justify-between border-b border-white/10 pb-2"><span>Ad Reward</span><span class="text-green-400 font-bold">₱0.01 PHP</span></div>
-                    <div class="flex justify-between border-b border-white/10 pb-2"><span>Referral Bonus</span><span class="text-green-400 font-bold">20% Commission</span></div>
-                    <div class="flex justify-between border-b border-white/10 pb-2"><span>1 PHP to USDT</span><span class="text-yellow-400">≈ 0.017 USDT</span></div>
+        <!-- INFO / FAQ VIEW -->
+        <div id="info-view" class="tab-content">
+            <div class="space-y-4">
+                <div class="bg-white/5 p-5 rounded-2xl border border-white/10">
+                    <h4 class="font-bold text-blue-400 mb-2 uppercase text-xs">How it Works?</h4>
+                    <p class="text-[10px] leading-relaxed text-white/70">Click 'Watch Ad', wait for 20 seconds on the opened page. Do not close or switch back early. Reward is credited automatically.</p>
                 </div>
-                <div class="space-y-2">
-                    <a href="https://t.me/PAPERHOUSE_INC" target="_blank" class="block bg-blue-600/20 p-3 rounded-xl border border-blue-500/30 text-[10px]"><i class="fab fa-telegram mr-2"></i> Telegram Channel</a>
-                    <a href="https://t.me/paperhouseinc" target="_blank" class="block bg-sky-600/20 p-3 rounded-xl border border-sky-500/30 text-[10px]"><i class="fas fa-users mr-2"></i> Telegram Group</a>
-                    <a href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank" class="block bg-blue-800/20 p-3 rounded-xl border border-blue-700/30 text-[10px]"><i class="fab fa-facebook mr-2"></i> Facebook Page</a>
+                <div class="bg-white/5 p-5 rounded-2xl border border-white/10">
+                    <h4 class="font-bold text-blue-400 mb-2 uppercase text-xs">Referral System</h4>
+                    <p class="text-[10px] leading-relaxed text-white/70">Share your link. When your friend earns ₱0.01, you automatically get ₱0.002 (20%). This is passive income!</p>
                 </div>
-                <button onclick="adminLogin()" class="w-full mt-6 text-slate-600 text-[10px] uppercase font-bold">Admin Portal</button>
+                <div class="bg-white/5 p-5 rounded-2xl border border-white/10 text-center">
+                    <h4 class="font-bold text-white mb-4 uppercase text-xs">Official Communities</h4>
+                    <div class="grid grid-cols-1 gap-2">
+                        <a href="https://t.me/PAPERHOUSE_INC" target="_blank" class="bg-blue-600 p-3 rounded-xl text-[10px] font-bold uppercase"><i class="fab fa-telegram mr-2"></i> Telegram Channel</a>
+                        <a href="https://t.me/paperhouseinc" target="_blank" class="bg-sky-500 p-3 rounded-xl text-[10px] font-bold uppercase"><i class="fas fa-users mr-2"></i> Telegram Group</a>
+                        <a href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank" class="bg-blue-800 p-3 rounded-xl text-[10px] font-bold uppercase"><i class="fab fa-facebook mr-2"></i> Facebook Page</a>
+                    </div>
+                </div>
             </div>
+            <button onclick="adminLogin()" class="w-full mt-8 opacity-20 text-[10px] font-bold uppercase tracking-[0.5em]">Administrator</button>
         </div>
 
         <!-- ADMIN VIEW -->
-        <div id="admin-view" class="tab-content">
-            <div class="bg-white text-slate-900 p-6 rounded-3xl">
-                <h3 class="font-black text-lg mb-4 border-b pb-2 uppercase italic text-blue-600">Admin - Withdrawals</h3>
-                <div id="adminList" class="space-y-4 max-h-96 overflow-y-auto"></div>
-                <button onclick="switchTab('dash')" class="w-full mt-6 bg-slate-200 py-3 rounded-xl text-xs font-bold uppercase">Exit Admin</button>
+        <div id="admin-view" class="tab-content"><div class="bg-white text-slate-900 p-6 rounded-3xl">
+                <h3 class="font-black text-lg mb-4 border-b pb-2 uppercase text-red-600">Pending Approvals</h3>
+                <div id="adminList" class="space-y-4 max-h-[400px] overflow-y-auto"></div>
+                <button onclick="switchTab('dash')" class="w-full mt-6 bg-slate-200 py-3 rounded-xl text-[10px] font-bold uppercase">Exit Admin</button>
             </div>
         </div>
 
     </main>
 
-    <!-- Ad Timer Overlay -->
-    <div id="timerOverlay" class="fixed inset-0 bg-slate-950/98 z-[100] hidden flex flex-col items-center justify-center p-6 text-center">
-        <div class="text-6xl font-black text-blue-500 mb-4" id="timerText">20</div>
-        <p class="text-xl font-bold text-white mb-2">WATCHING AD...</p>
-        <p class="text-xs text-slate-500 uppercase tracking-widest">Do not go back or reward will fail</p>
+    <!-- Navigation Bar -->
+    <nav class="fixed bottom-0 inset-x-0 bg-slate-900 border-t border-white/10 p-2 flex justify-around items-center z-50">
+        <button onclick="switchTab('dash')" class="flex flex-col items-center gap-1 p-2 text-white/50" id="nav-dash">
+            <i class="fa fa-home text-lg"></i><span class="text-[9px] font-bold uppercase">Home</span>
+        </button>
+        <button onclick="switchTab('withdraw')" class="flex flex-col items-center gap-1 p-2 text-white/50" id="nav-withdraw">
+            <i class="fa fa-wallet text-lg"></i><span class="text-[9px] font-bold uppercase">Wallet</span>
+        </button>
+        <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 p-2 text-white/50" id="nav-chat">
+            <i class="fa fa-comments text-lg"></i><span class="text-[9px] font-bold uppercase">Chat</span>
+        </button>
+        <button onclick="switchTab('info')" class="flex flex-col items-center gap-1 p-2 text-white/50" id="nav-info">
+            <i class="fa fa-circle-info text-lg"></i><span class="text-[9px] font-bold uppercase">Info</span>
+        </button>
+    </nav>
+
+    <!-- Timer Overlay -->
+    <div id="timerOverlay" class="fixed inset-0 bg-slate-950/98 z-[100] hidden flex flex-col items-center justify-center text-center">
+        <div class="text-8xl font-black text-blue-500 mb-4" id="timerText">20</div>
+        <p class="text-xl font-bold tracking-tighter uppercase">Ad Task Processing...</p>
+        <p class="text-[10px] text-white/40 mt-4 uppercase tracking-[0.3em]">Stay on the ad tab to receive reward</p>
     </div>
 
-    <!-- Referral UI -->
-    <div class="p-4 container mx-auto max-w-md">
-        <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800 text-center">
-            <input type="text" id="refLink" readonly class="w-full bg-slate-950 text-blue-400 text-center text-[10px] p-2 rounded mb-2 border border-slate-800 outline-none">
-            <button onclick="copyRef()" class="text-[10px] bg-blue-600 px-4 py-1 rounded-full font-black uppercase">Copy Link</button>
-        </div>
+    <!-- Referral Link Box -->
+    <div class="fixed bottom-20 left-4 right-4 z-40 bg-white/5 border border-white/10 p-3 rounded-2xl flex items-center gap-2">
+        <input type="text" id="refLink" readonly class="flex-1 bg-transparent border-none text-[10px] text-white/60 outline-none">
+        <button onclick="copyRef()" class="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-bold">COPY</button>
     </div>
-
-    <footer class="p-6 text-center text-slate-600 border-t border-slate-900">
-        <p id="footerTime" class="text-[10px] font-mono mb-1"></p>
-        <p class="text-[9px] font-black uppercase tracking-widest">PaperHouse Corp © 2026</p>
-    </footer>
 
     <audio id="successAlarm" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
 
