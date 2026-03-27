@@ -5,124 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PaperHouse Corp - Earn PHP</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .hidden { display: none; }
-        @keyframes pulse-ring { 0% { transform: scale(.33); opacity: 1; } 80%, 100% { opacity: 0; } }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen font-sans">
+<body class="p-4 md:p-8">
 
-    <!-- LOGIN / REGISTER VIEW -->
-    <div id="login-view" class="flex flex-col items-center justify-center min-h-screen p-6">
-        <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 text-center border border-gray-100">
-            <h1 class="text-3xl font-black text-blue-600 mb-2">PAPERHOUSE</h1>
-            <p class="text-gray-500 mb-8 uppercase tracking-widest text-xs font-bold">Earn Concept</p>
-            
-            <div class="space-y-4">
-                <input id="username-input" type="text" placeholder="Enter Username" class="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                <button id="login-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95">
-                    LOGIN / START EARNING
+    <div class="max-w-md mx-auto space-y-6">
+        <!-- Header / Balance Card -->
+        <div class="glass p-6 rounded-3xl shadow-xl text-center">
+            <h1 class="text-xl font-bold text-gray-800">Welcome to PaperHouse</h1>
+            <div class="mt-4">
+                <p class="text-sm text-gray-500 uppercase tracking-widest">Available Balance</p>
+                <h2 class="text-4xl font-black text-indigo-600">₱ <span id="user-balance">0.00</span></h2>
+            </div>
+        </div>
+
+        <!-- Ad Card -->
+        <div id="ad-card" class="glass p-8 rounded-3xl shadow-xl text-center border-4 border-dashed border-indigo-200">
+            <div id="ready-state">
+                <i class="fas fa-play-circle text-6xl text-indigo-500 mb-4"></i>
+                <h3 class="text-xl font-bold">Earn ₱0.01 Now</h3>
+                <p class="text-sm text-gray-600 mb-6">Stay on the page for 20 seconds to claim.</p>
+                <button onclick="startTask()" class="bg-indigo-600 text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform w-full shadow-lg">
+                    START WATCHING ADS
                 </button>
             </div>
-            <p class="mt-6 text-xs text-gray-400 italic">No password required. Just remember your username.</p>
-        </div>
-    </div>
 
-    <!-- MAIN DASHBOARD (HIDDEN BY DEFAULT) -->
-    <div id="app-view" class="hidden max-w-md mx-auto p-4 space-y-4 pb-20">
-        
-        <!-- Header Stats -->
-        <div class="glass rounded-3xl p-6 shadow-xl border border-white">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-gray-500 text-xs font-bold uppercase tracking-tight">Main Balance</p>
-                    <h2 id="balance-display" class="text-4xl font-black text-gray-800">₱0.00</h2>
-                </div>
-                <div class="text-right">
-                    <p id="user-display" class="text-blue-600 font-bold text-sm">@username</p>
-                    <button id="logout-button" class="text-[10px] text-red-400 font-bold uppercase">Logout</button>
-                </div>
-            </div>            <div class="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-100">
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Referrals</p>
-                    <p id="total-refs" class="text-xl font-black">0</p>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Ref Earnings</p>
-                    <p id="ref-earnings" class="text-xl font-black text-green-600">₱0.00</p>
-                </div>
-            </div>
-        </div>
+            <div id="timer-state" class="hidden">
+                <div class="relative pt-1">
+                    <div class="flex mb-2 items-center justify-between">
+                      <div><span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">Task Progress</span></div>
+                      <div class="text-right"><span id="timer-text" class="text-xs font-semibold inline-block text-indigo-600">20s</span></div>
+                    </div>
+                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
 
-        <!-- Ad Task Card -->
-        <div class="bg-white rounded-3xl p-8 shadow-xl text-center border-b-4 border-blue-500">
-            <h3 class="font-black text-xl mb-2 italic">Earn ₱0.01 per Ad</h3>
-            <p class="text-sm text-gray-500 mb-6">Stay for 20 seconds to receive reward</p>
-            
-            <button id="start-btn" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-blue-600 transition-colors">
-                OPEN AD LINK
-            </button>
-
-            <div id="timer-card" class="hidden mt-6 animate-bounce">
-                <div class="text-3xl font-black text-red-500" id="seconds">20s</div>
-                <p class="text-[10px] font-bold text-red-400">WAITING FOR TIMER...</p>
+                      <div id="timer-bar" style="width:100%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 transition-all duration-1000"></div>
+                    </div>
+                </div>
+                <p class="text-red-500 font-bold animate-pulse">Don't close the ad tab!</p>
             </div>
         </div>
 
         <!-- Referral Section -->
-        <div class="bg-blue-50 rounded-3xl p-6 border border-blue-100">
-            <p class="text-sm font-bold text-blue-800 mb-2">Your Referral Link (20% Bonus):</p>
-            <div class="flex gap-2">
-                <input id="ref-link" readonly type="text" class="flex-1 bg-white border border-blue-200 rounded-lg p-2 text-[10px] font-mono">
-                <button id="copy-ref-button" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Copy</button>
+        <div class="glass p-6 rounded-3xl shadow-xl">
+            <h3 class="font-bold border-b pb-2 mb-3">Referral Program (20% Bonus)</h3>
+            <p class="text-xs text-gray-600 mb-2">Total Referrals: <span id="ref-count" class="font-bold text-indigo-600">0</span></p>
+            <p class="text-xs text-gray-600 mb-4">Total Referral Earn: ₱ <span id="ref-earn" class="font-bold text-indigo-600">0.00</span></p>
+            <div class="flex items-center bg-gray-100 p-2 rounded-lg">
+                <input id="ref-link" type="text" readonly class="bg-transparent text-xs w-full outline-none">
+                <button onclick="copyRef()" class="text-indigo-600 text-sm font-bold ml-2">COPY</button>
             </div>
         </div>
 
-        <!-- Withdrawal Section -->
-        <div class="bg-white rounded-3xl p-6 shadow-md">
-            <h4 class="font-black mb-4">Withdraw Funds</h4>
-            <input id="withdraw-amount" type="number" placeholder="Amount PHP" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mb-2">            <input id="withdraw-info" type="text" placeholder="GCash Number / Email" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mb-4">
-            <button id="withdraw-button" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl">Submit Request</button>
-            
-            <div class="mt-6">
-                <p class="text-xs font-bold text-gray-400 uppercase mb-2">Withdrawal History</p>
-                <div id="history-list" class="space-y-2 max-h-40 overflow-y-auto text-xs"></div>
+        <!-- Withdrawal -->
+        <div class="glass p-6 rounded-3xl shadow-xl">
+            <h3 class="font-bold mb-4">Withdraw Funds</h3>
+            <input id="withdraw-method" type="text" placeholder="Gcash Number / Email" class="w-full p-3 rounded-xl border mb-3 outline-none focus:border-indigo-500">
+            <input id="withdraw-amount" type="number" placeholder="Amount (min 1.00)" class="w-full p-3 rounded-xl border mb-4 outline-none focus:border-indigo-500">
+            <button onclick="requestWithdrawal()" class="w-full bg-green-500 text-white p-3 rounded-xl font-bold shadow-md hover:bg-green-600">SUBMIT REQUEST</button>
+        </div>
+
+        <!-- History -->
+        <div class="glass p-6 rounded-3xl shadow-xl">
+            <h3 class="font-bold mb-3 border-b pb-2">Withdrawal History</h3>
+            <div id="history-list" class="space-y-2 max-h-40 overflow-y-auto text-sm">
+                <p class="text-gray-400 text-center">No transactions yet.</p>
             </div>
         </div>
 
-        <button id="admin-button" class="w-full py-4 text-gray-300 text-xs font-bold">ADMIN ACCESS</button>
+        <!-- Admin Access -->
+        <button onclick="openAdmin()" class="text-xs text-white/50 w-full text-center hover:text-white">Admin Login</button>
 
-        <footer class="text-center text-gray-400 py-6">
-            <p class="text-[10px] font-bold uppercase tracking-widest">PaperHouse Corp</p>
-            <p id="footer-date" class="text-xs mt-1 font-mono"></p>
+        <footer class="text-center text-white/80 text-xs mt-8">
+            <p id="current-time"></p>
+            <p>&copy; 2024 PaperHouse Corp</p>
         </footer>
     </div>
 
-    <!-- Congrats Popup -->
-    <div id="congrats-popup" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-6">
-        <div class="bg-white rounded-[40px] p-8 w-full max-w-sm text-center shadow-2xl">
-            <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">✓</div>
-            <h2 class="text-2xl font-black">CONGRATS!</h2>
-            <p class="text-gray-500 mt-2">You earned ₱0.01 PHP</p>
-            <div class="my-6 p-4 bg-gray 
--50 rounded-2xl">
-                <p class="text-xs font-bold text-gray-400 uppercase">New Balance</p>
-                <p id="popup-total" class="text-3xl font-black text-slate-800">₱0.00</p>
+    <!-- Admin Modal -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/80 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-6 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Admin Panel</h2>
+                <button onclick="closeAdmin()" class="text-gray-500 text-2xl">&times;</button>
             </div>
-            <button id="close-popup-button" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl">CONTINUE</button>
+            <div id="admin-auth">
+                <input id="admin-pass" type="password" placeholder="Admin Password" class="w-full p-3 border rounded-xl mb-4">
+                <button onclick="checkAdmin()" class="w-full bg-indigo-600 text-white p-3 rounded-xl">Login</button>
+            </div>
+            <div id="admin-content" class="hidden">
+                <h3 class="font-bold mb-2">Pending Withdrawals</h3>
+                <div id="pending-list" class="space-y-4"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Admin View -->
-    <div id="admin-view" class="hidden fixed inset-0 bg-white z-[60] p-6 overflow-y-auto">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-black uppercase">Admin Panel</h1>
-            <button id="close-admin-button" class="text-red-500 font-bold">CLOSE</button>
-        </div>
-        <div id="admin-requests" class="space-y-4"></div>
-    </div>
-
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
