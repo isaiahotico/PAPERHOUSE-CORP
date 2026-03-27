@@ -1,1 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PaperHouse Corp - Earn PHP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .hidden { display: none; }
+        @keyframes pulse-ring { 0% { transform: scale(.33); opacity: 1; } 80%, 100% { opacity: 0; } }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans">
 
+    <!-- LOGIN / REGISTER VIEW -->
+    <div id="login-view" class="flex flex-col items-center justify-center min-h-screen p-6">
+        <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 text-center border border-gray-100">
+            <h1 class="text-3xl font-black text-blue-600 mb-2">PAPERHOUSE</h1>
+            <p class="text-gray-500 mb-8 uppercase tracking-widest text-xs font-bold">Earn Concept</p>
+            
+            <div class="space-y-4">
+                <input id="username-input" type="text" placeholder="Enter Username" class="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                <button id="login-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95">
+                    LOGIN / START EARNING
+                </button>
+            </div>
+            <p class="mt-6 text-xs text-gray-400 italic">No password required. Just remember your username.</p>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD (HIDDEN BY DEFAULT) -->
+    <div id="app-view" class="hidden max-w-md mx-auto p-4 space-y-4 pb-20">
+        
+        <!-- Header Stats -->
+        <div class="glass rounded-3xl p-6 shadow-xl border border-white">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-gray-500 text-xs font-bold uppercase tracking-tight">Main Balance</p>
+                    <h2 id="balance-display" class="text-4xl font-black text-gray-800">₱0.00</h2>
+                </div>
+                <div class="text-right">
+                    <p id="user-display" class="text-blue-600 font-bold text-sm">@username</p>
+                    <button id="logout-button" class="text-[10px] text-red-400 font-bold uppercase">Logout</button>
+                </div>
+            </div>            <div class="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-100">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Referrals</p>
+                    <p id="total-refs" class="text-xl font-black">0</p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Ref Earnings</p>
+                    <p id="ref-earnings" class="text-xl font-black text-green-600">₱0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Task Card -->
+        <div class="bg-white rounded-3xl p-8 shadow-xl text-center border-b-4 border-blue-500">
+            <h3 class="font-black text-xl mb-2 italic">Earn ₱0.01 per Ad</h3>
+            <p class="text-sm text-gray-500 mb-6">Stay for 20 seconds to receive reward</p>
+            
+            <button id="start-btn" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-blue-600 transition-colors">
+                OPEN AD LINK
+            </button>
+
+            <div id="timer-card" class="hidden mt-6 animate-bounce">
+                <div class="text-3xl font-black text-red-500" id="seconds">20s</div>
+                <p class="text-[10px] font-bold text-red-400">WAITING FOR TIMER...</p>
+            </div>
+        </div>
+
+        <!-- Referral Section -->
+        <div class="bg-blue-50 rounded-3xl p-6 border border-blue-100">
+            <p class="text-sm font-bold text-blue-800 mb-2">Your Referral Link (20% Bonus):</p>
+            <div class="flex gap-2">
+                <input id="ref-link" readonly type="text" class="flex-1 bg-white border border-blue-200 rounded-lg p-2 text-[10px] font-mono">
+                <button id="copy-ref-button" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Copy</button>
+            </div>
+        </div>
+
+        <!-- Withdrawal Section -->
+        <div class="bg-white rounded-3xl p-6 shadow-md">
+            <h4 class="font-black mb-4">Withdraw Funds</h4>
+            <input id="withdraw-amount" type="number" placeholder="Amount PHP" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mb-2">            <input id="withdraw-info" type="text" placeholder="GCash Number / Email" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mb-4">
+            <button id="withdraw-button" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl">Submit Request</button>
+            
+            <div class="mt-6">
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2">Withdrawal History</p>
+                <div id="history-list" class="space-y-2 max-h-40 overflow-y-auto text-xs"></div>
+            </div>
+        </div>
+
+        <button id="admin-button" class="w-full py-4 text-gray-300 text-xs font-bold">ADMIN ACCESS</button>
+
+        <footer class="text-center text-gray-400 py-6">
+            <p class="text-[10px] font-bold uppercase tracking-widest">PaperHouse Corp</p>
+            <p id="footer-date" class="text-xs mt-1 font-mono"></p>
+        </footer>
+    </div>
+
+    <!-- Congrats Popup -->
+    <div id="congrats-popup" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-6">
+        <div class="bg-white rounded-[40px] p-8 w-full max-w-sm text-center shadow-2xl">
+            <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">✓</div>
+            <h2 class="text-2xl font-black">CONGRATS!</h2>
+            <p class="text-gray-500 mt-2">You earned ₱0.01 PHP</p>
+            <div class="my-6 p-4 bg-gray 
+-50 rounded-2xl">
+                <p class="text-xs font-bold text-gray-400 uppercase">New Balance</p>
+                <p id="popup-total" class="text-3xl font-black text-slate-800">₱0.00</p>
+            </div>
+            <button id="close-popup-button" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl">CONTINUE</button>
+        </div>
+    </div>
+
+    <!-- Admin View -->
+    <div id="admin-view" class="hidden fixed inset-0 bg-white z-[60] p-6 overflow-y-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-black uppercase">Admin Panel</h1>
+            <button id="close-admin-button" class="text-red-500 font-bold">CLOSE</button>
+        </div>
+        <div id="admin-requests" class="space-y-4"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
