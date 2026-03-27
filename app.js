@@ -20,7 +20,7 @@ const THEMES = [
     '#0f172a', '#1e1b4b', '#2e1065', '#4c1d95', '#701a75', 
     '#831843', '#881337', '#7c2d12', '#78350f', '#365314', 
     '#064e3b', '#134e4a', '#164e63', '#0c4a6e', '#1e3a8a', 
-    '#312e81', '#3730a3', '#4338ca', '#581c87', '#171717'
+    '#312e81', '#3730a3', '#4338ca', '#581c87', '#171717', '#6F8FAF', '#6495ED', '#50C878', '#00FF00'
 ];
 
 let uid = localStorage.getItem('phc_v4_uid');
@@ -167,7 +167,7 @@ function submitWithdraw() {
     const account = document.getElementById('wAccount').value;
     const amount = parseFloat(document.getElementById('wAmount').value);
 
-    if (!account || amount < 0.01) return alert("Invalid data");
+    if (!account || amount < 1.00) return alert("Invalid data");
     if (amount > user.balance) return alert("Insufficient balance");
 
     const key = db.ref('withdrawals').push().key;
