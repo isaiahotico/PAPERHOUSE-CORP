@@ -95,7 +95,7 @@ function startAdTask() {
             clearInterval(timer);
             isTaskActive = false;
             document.getElementById('timerOverlay').classList.add('hidden');
-            alert("TASK FAILED! You must stay on the ad page for 20 seconds.");
+            alert("TASK FAILED! You must stay on the ad page for 20 seconds TRY CHROME BROWSER.");
             return;
         }
 
@@ -114,7 +114,7 @@ function completeTask() {
     document.getElementById('successAlarm').play();
 
     db.ref('users/' + uid).transaction(u => {
-        if (u) u.balance = (u.balance || 0) + 0.01;
+        if (u) u.balance = (u.balance || 0) + 0.0102;
         return u;
     });
 
@@ -128,7 +128,7 @@ function completeTask() {
             return r;
         });
     }
-    alert("Reward ₱0.01 added!");
+    alert("Reward ₱0.0105 added!");
 }
 
 // Chat
