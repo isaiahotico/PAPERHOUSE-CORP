@@ -114,7 +114,7 @@ function completeTask() {
     document.getElementById('successAlarm').play();
 
     db.ref('users/' + uid).transaction(u => {
-        if (u) u.balance = (u.balance || 0) + 0.0102;
+        if (u) u.balance = (u.balance || 0) + 0.0075;
         return u;
     });
 
@@ -122,13 +122,13 @@ function completeTask() {
     if (user.refBy) {
         db.ref('users/' + user.refBy).transaction(r => {
             if (r) {
-                r.balance = (r.balance || 0) + 0.002;
-                r.refEarnings = (r.refEarnings || 0) + 0.002;
+                r.balance = (r.balance || 0) + 0.0014;
+                r.refEarnings = (r.refEarnings || 0) + 0.0014;
             }
             return r;
         });
     }
-    alert("Reward ₱0.0105 added!");
+    alert("Reward ₱0.0075 added!");
 }
 
 // Chat
