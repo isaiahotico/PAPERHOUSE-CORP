@@ -13,7 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const AD_URL = "https://omg10.com/4/10589174";
+const AD_URL = "https://omg10.com/4/10504686";
 const REF_BASE = "https://isaiahotico.github.io/PAPERHOUSE-CORP/";
 
 const THEMES = [
