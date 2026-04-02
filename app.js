@@ -15,7 +15,11 @@ const db = firebase.database();
 
 const AD_URL = "https://www.profitablecpmratenetwork.com/i2rx8svvds?key=ec449a85ea63cb0b7adf4cd90009cbca";
 const REF_BASE = "https://isaiahotico.github.io/PAPERHOUSE-CORP/";
-
+const AD_ZONES = [
+    'show_10555663',
+    'show_10555746',
+    'show_10555727'
+     ];
 const THEMES = [
     '#0f172a', '#1e1b4b', '#2e1065', '#4c1d95', '#701a75', 
     '#831843', '#881337', '#7c2d12', '#78350f', '#365314', 
@@ -206,6 +210,37 @@ function approvePay(key, targetUid) {
     db.ref('withdrawals/' + key).update({ status: 'approved' });
     db.ref('users/' + targetUid + '/withdraws/' + key).update({ status: 'approved' });
     alert("Payout marked as Approved!");
+}
+// --- MONETAG AD FUNCTIONS ---
+
+// Initial Random In-App Interstitial Ad (3 minute cooldown)
+function showInitialAd() {
+    const now = Date.now();
+    if (now - lastInitialAd < INITIAL_AD_COOLDOWN_MS) {
+        return; // Still in cooldown
+    }
+
+    const adFunction = getRandomAdZone();
+    
+    try {
+        adFunction({
+            type: 'inApp',
+            inAppSettings: {
+                frequency: 5, 
+                capping: 0.1,
+                interval: 45,
+                timeout: 5,
+                everyPage: false
+            }
+        });
+        
+        // Update the last shown time
+        lastInitialAd = now;
+        update(userRef, { lastInitialAd: now });
+
+    } catch(e) {
+        console.error("Initial ad failed:", e);
+    }
 }
 
 // Themes Logic
